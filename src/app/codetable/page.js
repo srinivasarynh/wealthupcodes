@@ -6,6 +6,8 @@ import './CodeTable.css';
 
 const CodeTable = () => {
   const [codes, setCodes] = useState([]);
+  let apiCalled  = false; 
+
 
   useEffect(() => {
     // Fetch data from API endpoint
@@ -18,7 +20,10 @@ const CodeTable = () => {
       }
     };
 
-    fetchData();
+    if(!apiCalled) {
+      fetchData();
+    }
+    apiCalled = true;
   }, []);
 
   return (

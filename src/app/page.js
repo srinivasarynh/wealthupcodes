@@ -1,17 +1,23 @@
-"use client"; 
-import React, { useState, useEffect } from 'react';
-import {useRouter} from 'next/navigation'
-import './CodeVerifier.css'
+"use client"
+import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import './CodeVerifier.css';
 import axios from 'axios';
 
-
-export default function Home() {
-  const [code, setCode] = useState('');  
-  const [generatedCode, setGeneratedCode] = useState('87uy7');
+const Home = () => {
+  const [code, setCode] = useState('');
+  const [generatedCode, setGeneratedCode] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  let apiCalled  = false; 
   const router = useRouter();
 
+  useEffect(() => {
+    if (!apiCalled) {
+      refreshCode();
+      apiCalled = true;
+    }
+  }, []); 
 
   const refreshCode = async () => {
     try {
@@ -22,24 +28,17 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    refreshCode(); 
-  }, []); 
-
   const submitCode = async () => {
     try {
-      if(code !== "") {
+      if (code !== '') {
         const response = await axios.post('https://wealthupapi.onrender.com/api/codes/use', { code });
         setMessage(response.data.message);
         if (response.data.message === 'Code is correct') {
-          // Navigate to another page after 1 seconds
           setTimeout(() => {
             router.push('/codetable');
           }, 1000);
         }
       }
-
-      // Check if the code is correct
     } catch (error) {
       setError(error.response.data.error);
     }
@@ -47,8 +46,12 @@ export default function Home() {
 
   return (
     <div className="code-verifier-container">
-      <div className="code-display"><p className="code-color">Code: {generatedCode}</p></div>
-      <button className="button" onClick={refreshCode}>Refresh</button>
+      <div className="code-display">
+        <p className="code-color">Code: {generatedCode}</p>
+      </div>
+      <button className="button" onClick={refreshCode}>
+        Refresh
+      </button>
       <div>
         <input
           className="input-field"
@@ -57,10 +60,14 @@ export default function Home() {
           onChange={(e) => setCode(e.target.value)}
           placeholder="Enter code"
         />
-        <button className="button" onClick={submitCode}>Submit</button>
+        <button className="button" onClick={submitCode}>
+          Submit
+        </button>
       </div>
       <div className="message">{message && <p>{message}</p>}</div>
       <div className="error">{error && <p>{error}</p>}</div>
     </div>
   );
-}
+};
+
+export default Home;
